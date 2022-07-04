@@ -10,6 +10,7 @@ import 'dart:math' as math;
 import 'package:bindings_compatible/bindings_compatible.dart';
 import 'package:camera/camera.dart';
 import 'package:camera_platform_interface/camera_platform_interface.dart';
+import 'package:common/beans/MediaDto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -17,7 +18,6 @@ import 'package:flutter/services.dart';
 
 import '../constants/config.dart';
 import '../constants/constants.dart';
-import '../constants/enums.dart';
 import '../constants/styles.dart';
 import '../delegates/camera_picker_text_delegate.dart';
 import '../internals/extensions.dart';
@@ -34,8 +34,8 @@ const Duration _kDuration = Duration(milliseconds: 300);
 /// Create a camera picker integrate with [CameraDescription].
 /// 通过 [CameraDescription] 整合的拍照选择
 ///
-/// The picker provides create an [AssetEntity] through the camera.
-/// 该选择器可以通过拍照创建 [AssetEntity]。
+/// The picker provides create an [MediaEntity] through the camera.
+/// 该选择器可以通过拍照创建 [MediaEntity]。
 class CameraPicker extends StatefulWidget {
   CameraPicker({
     Key? key,
@@ -48,13 +48,13 @@ class CameraPicker extends StatefulWidget {
 
   final CameraPickerConfig pickerConfig;
 
-  /// Static method to create [AssetEntity] through camera.
-  /// 通过相机创建 [AssetEntity] 的静态方法
-  static Future<AssetEntity?> pickFromCamera(
+  /// Static method to create [MediaEntity] through camera.
+  /// 通过相机创建 [MediaEntity] 的静态方法
+  static Future<MediaEntity?> pickFromCamera(
     BuildContext context, {
     CameraPickerConfig pickerConfig = const CameraPickerConfig(),
     bool useRootNavigator = true,
-    CameraPickerPageRouteBuilder<AssetEntity>? pageRouteBuilder,
+    CameraPickerPageRouteBuilder<MediaEntity>? pageRouteBuilder,
     Locale? locale,
   }) {
     final Widget picker = CameraPicker(
@@ -64,9 +64,9 @@ class CameraPicker extends StatefulWidget {
     return Navigator.of(
       context,
       rootNavigator: useRootNavigator,
-    ).push<AssetEntity>(
+    ).push<MediaEntity>(
       pageRouteBuilder?.call(picker) ??
-          CameraPickerPageRoute<AssetEntity>(builder: (_) => picker),
+          CameraPickerPageRoute<MediaEntity>(builder: (_) => picker),
     );
   }
 
@@ -680,7 +680,7 @@ class CameraPickerState extends State<CameraPicker>
       if (isCapturedFileHandled ?? false) {
         return;
       }
-      final AssetEntity? entity = await _pushToViewer(
+      final MediaEntity? entity = await _pushToViewer(
         file: file,
         viewType: CameraPickerViewType.image,
       );
@@ -787,7 +787,7 @@ class CameraPickerState extends State<CameraPicker>
       if (isCapturedFileHandled ?? false) {
         return;
       }
-      final AssetEntity? entity = await _pushToViewer(
+      final MediaEntity? entity = await _pushToViewer(
         file: file,
         viewType: CameraPickerViewType.video,
       );
@@ -806,7 +806,7 @@ class CameraPickerState extends State<CameraPicker>
     }
   }
 
-  Future<AssetEntity?> _pushToViewer({
+  Future<MediaEntity?> _pushToViewer({
     required XFile file,
     required CameraPickerViewType viewType,
   }) {
@@ -1456,3 +1456,4 @@ class CameraPickerState extends State<CameraPicker>
     );
   }
 }
+

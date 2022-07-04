@@ -6,13 +6,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:common/beans/MediaDto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:path/path.dart' as path;
+import 'package:photo_manager/photo_manager.dart';
 import 'package:video_player/video_player.dart';
 
 import '../constants/constants.dart';
-import '../constants/enums.dart';
 import '../constants/type_defs.dart';
 import '../internals/methods.dart';
 
@@ -61,7 +62,7 @@ class CameraPickerViewer extends StatefulWidget {
 
   /// Static method to push with the navigator.
   /// 跳转至选择预览的静态方法
-  static Future<AssetEntity?> pushToViewer(
+  static Future<MediaEntity?> pushToViewer(
     BuildContext context, {
     required CameraPickerState pickerState,
     required CameraPickerViewType pickerType,
@@ -72,8 +73,8 @@ class CameraPickerViewer extends StatefulWidget {
     EntitySaveCallback? onEntitySaving,
     CameraErrorHandler? onError,
   }) {
-    return Navigator.of(context).push<AssetEntity?>(
-      PageRouteBuilder<AssetEntity?>(
+    return Navigator.of(context).push<MediaEntity?>(
+      PageRouteBuilder<MediaEntity?>(
         pageBuilder: (_, __, ___) => CameraPickerViewer(
           pickerState: pickerState,
           pickerType: pickerType,
@@ -210,33 +211,34 @@ class _CameraPickerViewerState extends State<CameraPickerViewer> {
     }
   }
 
-  /// When users confirm to use the taken file, create the [AssetEntity].
+  /// When users confirm to use the taken file, create the [MediaEntity].
   /// While the entity might returned null, there's no side effects if popping `null`
   /// because the parent picker will ignore it.
-  Future<void> createAssetEntityAndPop() async {
+  Future<void> createEntityAndPop() async {
     if (widget.onEntitySaving != null) {
       await widget.onEntitySaving!(context, pickerType, previewFile);
       return;
     }
-    AssetEntity? entity;
+    MediaEntity? entity;
     try {
       final PermissionState ps = await PhotoManager.requestPermissionExtend();
       if (ps == PermissionState.authorized || ps == PermissionState.limited) {
-        switch (pickerType) {
-          case CameraPickerViewType.image:
-            final String filePath = previewFile.path;
-            entity = await PhotoManager.editor.saveImageWithPath(
-              filePath,
-              title: path.basename(previewFile.path),
-            );
-            break;
-          case CameraPickerViewType.video:
-            entity = await PhotoManager.editor.saveVideo(
-              previewFile,
-              title: path.basename(previewFile.path),
-            );
-            break;
-        }
+        // switch (pickerType) {
+        //   case CameraPickerViewType.image:
+        //     final String filePath = previewFile.path;
+        //     entity = await PhotoManager.editor.saveImageWithPath(
+        //       filePath,
+        //       title: path.basename(previewFile.path),
+        //     );
+        //     break;
+        //   case CameraPickerViewType.video:
+        //     entity = await PhotoManager.editor.saveVideo(
+        //       previewFile,
+        //       title: path.basename(previewFile.path),
+        //     );
+        //     break;
+        // }
+        entity = MediaEntity(previewFile,pickerType);
         if (shouldDeletePreviewFile && previewFile.existsSync()) {
           previewFile.delete();
         }
@@ -331,7 +333,7 @@ class _CameraPickerViewerState extends State<CameraPickerViewer> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(3.0),
       ),
-      onPressed: createAssetEntityAndPop,
+      onPressed: createEntityAndPop,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       child: Text(
         Constants.textDelegate.confirm,
