@@ -1329,7 +1329,6 @@ class CameraPickerState extends State<CameraPicker>
             : const SizedBox.shrink(),
       ),
     );
-
     // Make a transformed widget if it's defined.
     final Widget? transformedWidget = config.previewTransformBuilder?.call(
       context,
